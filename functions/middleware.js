@@ -1,11 +1,13 @@
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   
-  // If the request is for a file (has an extension), let it through
-  if (url.pathname.includes('.')) {
+  // Let files with extensions pass through
+  if (url.pathname.match(/\.[a-z0-9]+$/i)) {
     return await context.next();
   }
   
-  // Otherwise, serve index.html for client-side routing
-  return context.env.ASSETS.fetch(new URL('/index.html', context.request.url));
+  // Serve index.html for all other routes
+  return context.env.ASSETS.fetch(
+    new URL('/index.html', context.request.url)
+  );
 }
