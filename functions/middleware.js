@@ -1,13 +1,19 @@
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   
-  // Let files with extensions pass through
-  if (url.pathname.match(/\.[a-z0-9]+$/i)) {
-    return await context.next();
+  // Allow actual files to pass through (anything with a file extension)
+  if (url.pathname.match(/\.\w+$/)) {
+    return context.next();
   }
   
-  // Serve index.html for all other routes
-  return context.env.ASSETS.fetch(
-    new URL('/index.html', context.request.url)
+  // For all routes without extensions, serve index.html
+  const indexResponse = await context.env.ASSETS.fetch(
+    new Request(new URL('/', url), context.request)
   );
+  
+  return new Response(indexResponse.body, {
+    ...indexResponse,
+    status: 200,
+    headers: indexResponse.headers
+  });
 }
