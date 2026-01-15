@@ -2,13 +2,12 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     
-    // Let asset files pass through
+    // Let asset files pass through (files with extensions)
     if (url.pathname.match(/\.\w+$/)) {
       return env.ASSETS.fetch(request);
     }
     
     // For all other routes, serve index.html
-    const indexUrl = new URL('/', url);
-    return env.ASSETS.fetch(new Request(indexUrl, request));
+    return env.ASSETS.fetch(new Request(new URL('/', url.origin), request));
   }
 }
